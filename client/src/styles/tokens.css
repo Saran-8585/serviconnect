@@ -1,0 +1,141 @@
+:root {
+  --color-primary-50: #e6f7f8;
+  --color-primary-100: #ccefef;
+  --color-primary-200: #99dfe0;
+  --color-primary-300: #66cfd0;
+  --color-primary-400: #33bfc1;
+  --color-primary-500: #0d7377;
+  --color-primary-600: #0a5c5f;
+  --color-primary-700: #084547;
+  --color-primary-800: #052e30;
+  --color-primary-900: #031718;
+
+  --color-accent-50: #fef0ed;
+  --color-accent-100: #fde1db;
+  --color-accent-200: #fbc3b7;
+  --color-accent-300: #f9a593;
+  --color-accent-400: #f7876f;
+  --color-accent-500: #e8614a;
+  --color-accent-600: #d04d36;
+  --color-accent-700: #a83b28;
+  --color-accent-800: #802c1d;
+  --color-accent-900: #581e14;
+
+  --color-neutral-50: #f8f9fa;
+  --color-neutral-100: #f1f3f5;
+  --color-neutral-200: #e9ecef;
+  --color-neutral-300: #dee2e6;
+  --color-neutral-400: #ced4da;
+  --color-neutral-500: #adb5bd;
+  --color-neutral-600: #868e96;
+  --color-neutral-700: #495057;
+  --color-neutral-800: #343a40;
+  --color-neutral-900: #1a1a2e;
+
+  --color-success: #2b8a3e;
+  --color-warning: #e67700;
+  --color-error: #c92a2a;
+  --color-info: #1864ab;
+
+  --color-success-bg: #ebfbee;
+  --color-warning-bg: #fff3e0;
+  --color-error-bg: #ffe0e0;
+  --color-info-bg: #e7f5ff;
+
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f8f9fa;
+  --color-surface-elevated: #ffffff;
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #495057;
+  --color-text-muted: #868e96;
+  --color-text-inverse: #ffffff;
+  --color-border: #dee2e6;
+  --color-border-light: #e9ecef;
+
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 2.5rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.08);
+
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal-backdrop: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+}
+
+[data-theme='dark'] {
+  --color-primary-50: #031718;
+  --color-primary-100: #052e30;
+  --color-primary-200: #084547;
+  --color-primary-300: #0a5c5f;
+  --color-primary-400: #0d7377;
+  --color-primary-500: #33bfc1;
+  --color-primary-600: #66cfd0;
+  --color-primary-700: #99dfe0;
+  --color-primary-800: #ccefef;
+  --color-primary-900: #e6f7f8;
+
+  --color-success-bg: #0b2e1a;
+  --color-warning-bg: #2e1f0b;
+  --color-error-bg: #2e0b0b;
+  --color-info-bg: #0b1a2e;
+
+  --color-surface: #121218;
+  --color-surface-secondary: #1a1a24;
+  --color-surface-elevated: #24242f;
+  --color-text-primary: #f1f3f5;
+  --color-text-secondary: #ced4da;
+  --color-text-muted: #868e96;
+  --color-text-inverse: #1a1a2e;
+  --color-border: #343a40;
+  --color-border-light: #2a2a35;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
