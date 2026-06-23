@@ -192,6 +192,10 @@ All seed accounts use the password `password123`:
 | **Admin** | Admin User | admin@serviconnect.com |
 | **Provider** | Ravi Sharma | ravi@example.com |
 | **Provider** | Amit Singh | amit@example.com |
+| **Provider** | Vikram Joshi | vikram@example.com |
+| **Provider** | Ananya Gupta | ananya@example.com |
+| **Provider** | Rajesh Kumar | rajesh@example.com |
+| **Provider** | Meera Iyer | meera@example.com |
 | **Customer** | Priya Patel | priya@example.com |
 | **Customer** | Sneha Reddy | sneha@example.com |
 
@@ -199,14 +203,14 @@ All seed accounts use the password `password123`:
 
 | Table | Records | Details |
 |-------|---------|---------|
-| `users` | 5 | 1 admin, 2 providers, 2 customers |
+| `users` | 9 | 1 admin, 6 providers, 2 customers |
 | `categories` | 6 | Plumbing, Electrical, Cleaning, Painting, Carpentry, Appliance Repair |
-| `provider_profiles` | 2 | Ravi Plumbing Solutions, Amit Electrical Works |
-| `services` | 6 | 3 plumbing services, 3 electrical services |
-| `bookings` | 4 | Mix of confirmed, pending, completed, and cancelled |
-| `reviews` | 2 | 5-star and 4-star reviews on completed bookings |
-| `messages` | 3 | Conversation between Priya and Ravi about a booking |
-| `notifications` | 3 | New booking, booking confirmed, and new review alerts |
+| `provider_profiles` | 6 | Ravi (Plumbing), Amit (Electrical), Vikram (Cleaning), Ananya (Painting), Rajesh (Carpentry), Meera (Appliance Repair) |
+| `services` | 15 | 3 per category across all 6 categories |
+| `bookings` | 13 | 7 completed, 2 confirmed, 3 pending, 1 cancelled |
+| `reviews` | 7 | Ratings across 5 different providers |
+| `messages` | 10 | Conversations for 3 different bookings |
+| `notifications` | 10 | Booking alerts and review notifications for all users |
 
 ### Re-running Seeds
 
