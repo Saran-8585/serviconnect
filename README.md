@@ -6,6 +6,25 @@ Serviconnect is a full-stack web application that bridges the gap between custom
 
 Whether you need a plumber, an electrician, a home cleaning service, or a tutor — Serviconnect makes it easy to find the right person for the job, check their availability, and book in seconds.
 
+### The Problem
+
+Finding reliable local service professionals is fragmented and frustrating. Customers juggle multiple platforms, lack transparency on pricing and availability, and have no way to verify quality before booking. Service providers struggle with manual scheduling, missed appointments, and limited visibility to potential customers.
+
+### The Solution
+
+Serviconnect unifies the entire service lifecycle on a single platform:
+- **Customers** discover providers by category, view detailed profiles with ratings and reviews, check real-time availability, book appointments, pay securely, and communicate via in-app chat.
+- **Providers** manage their business presence, list services with pricing, control their schedule, receive booking requests, and build their reputation through customer reviews.
+- **Admins** oversee the ecosystem — approve providers, manage categories, resolve disputes, and monitor platform analytics.
+
+### Key Differentiators
+
+- **Real-time communication** — Built-in Socket.io chat lets customers and providers coordinate without leaving the platform.
+- **Role-based access** — Three distinct user roles (Customer, Provider, Admin) with tailored dashboards and permissions.
+- **Dark mode** — Full theme support with system preference detection and persistent user choice.
+- **Relational integrity** — SQLite with foreign keys and transactions guarantees no double-bookings and consistent data.
+- **Zero setup** — No Docker, no cloud database, no environment variables to configure beyond a single `.env` file.
+
 ---
 
 ## Table of Contents
@@ -21,6 +40,7 @@ Whether you need a plumber, an electrician, a home cleaning service, or a tutor 
 - [Project Structure](#project-structure)
 - [Database Schema](#database-schema)
 - [API Overview](#api-overview)
+- [Seed Data](#seed-data)
 - [Design System](#design-system)
 - [Development Roadmap](#development-roadmap)
 - [License](#license)
@@ -66,7 +86,7 @@ The application follows a **modular monolith** pattern — a single Express serv
 
 ## Features
 
-### Current (Phase 1)
+### Current
 
 - **User authentication** — Register, login, JWT-based session management
 - **Profile management** — Update name, phone, avatar
@@ -75,15 +95,17 @@ The application follows a **modular monolith** pattern — a single Express serv
 - **Responsive design** — Mobile-first layout across all pages
 - **UI component library** — 7 reusable primitives with variant system
 - **Landing page** — Hero section, category grid, how-it-works flow
-
-### Planned
-
 - **Category browsing** — Browse services by category with search and filters
 - **Provider onboarding** — Business profiles, service listings, verification
 - **Booking engine** — Date/time selection, availability management, status flow
 - **Real-time chat** — Socket.io messaging between customers and providers
 - **Reviews & ratings** — Post-booking feedback system
+
+### Planned
+
 - **Admin dashboard** — Platform management, analytics, user oversight
+- **Payment integration** — Online payment processing
+- **Deployment** — Production configuration and hosting
 
 ---
 
@@ -148,8 +170,51 @@ npm run dev
 | Service | URL |
 |---------|-----|
 | **Frontend** | http://localhost:5173 |
-| **Backend API** | http://localhost:5000 |
-| **Health Check** | http://localhost:5000/api/health |
+| **Backend API** | http://localhost:5001 |
+| **Health Check** | http://localhost:5001/api/health |
+
+---
+
+## Seed Data
+
+The project includes 8 seed files with sample data for development and testing. Run them after migrations:
+
+```bash
+cd server && npm run seed
+```
+
+### Test Accounts
+
+All seed accounts use the password `password123`:
+
+| Role | Name | Email |
+|------|------|-------|
+| **Admin** | Admin User | admin@serviconnect.com |
+| **Provider** | Ravi Sharma | ravi@example.com |
+| **Provider** | Amit Singh | amit@example.com |
+| **Customer** | Priya Patel | priya@example.com |
+| **Customer** | Sneha Reddy | sneha@example.com |
+
+### Sample Data Summary
+
+| Table | Records | Details |
+|-------|---------|---------|
+| `users` | 5 | 1 admin, 2 providers, 2 customers |
+| `categories` | 6 | Plumbing, Electrical, Cleaning, Painting, Carpentry, Appliance Repair |
+| `provider_profiles` | 2 | Ravi Plumbing Solutions, Amit Electrical Works |
+| `services` | 6 | 3 plumbing services, 3 electrical services |
+| `bookings` | 4 | Mix of confirmed, pending, completed, and cancelled |
+| `reviews` | 2 | 5-star and 4-star reviews on completed bookings |
+| `messages` | 3 | Conversation between Priya and Ravi about a booking |
+| `notifications` | 3 | New booking, booking confirmed, and new review alerts |
+
+### Re-running Seeds
+
+To reset and re-seed at any time:
+
+```bash
+cd server && npm run seed
+```
 
 ---
 
@@ -270,10 +335,10 @@ The UI is built with a custom design token system — no Tailwind, no Bootstrap,
 | Phase | Focus | Status |
 |-------|-------|--------|
 | **1. Foundation** | Monorepo, SQLite, Auth, UI primitives, Layout | ✅ Complete |
-| **2. Categories & Providers** | Category CRUD, Provider onboarding, Service CRUD, Browse/Search | 🔜 Next |
-| **3. Booking Engine** | Date/time slots, Availability, Status flow, Booking UI | ⏳ Planned |
-| **4. Reviews & Real-time** | Ratings, Socket.io chat, Notifications | ⏳ Planned |
-| **5. Admin Panel** | Dashboard, User/Provider management, Category admin | ⏳ Planned |
+| **2. Categories & Providers** | Category CRUD, Provider onboarding, Service CRUD, Browse/Search | ✅ Complete |
+| **3. Booking Engine** | Date/time slots, Availability, Status flow, Booking UI | ✅ Complete |
+| **4. Reviews & Real-time** | Ratings, Socket.io chat, Notifications | ✅ Complete |
+| **5. Admin Panel** | Dashboard, User/Provider management, Category admin | 🔜 Next |
 | **6. Polish** | Loading states, Error boundaries, Deployment | ⏳ Planned |
 
 ---
