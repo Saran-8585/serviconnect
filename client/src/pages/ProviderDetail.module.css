@@ -1,0 +1,177 @@
+.header {
+  margin-bottom: 2rem;
+}
+
+.profileRow {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-primary-500);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.businessName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+.providerName {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 0.5rem;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.reviewCount {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.actions {
+  margin-top: 1rem;
+}
+
+.section {
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+}
+
+.description {
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.contactSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.contactCard {
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.contactCard h3 {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin: 0 0 0.5rem;
+}
+
+.contactLink {
+  color: var(--color-primary-500);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.contactLink:hover {
+  text-decoration: underline;
+}
+
+.contactValue {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+
+.servicesSection {
+  margin-bottom: 2rem;
+}
+
+.servicesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.serviceCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  background: var(--color-surface-elevated, #f9fafb);
+  border-radius: var(--radius-lg);
+  gap: 1rem;
+}
+
+.serviceInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.serviceName {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+
+.serviceDesc {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 0.25rem;
+}
+
+.duration {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.serviceAction {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-accent-500);
+  white-space: nowrap;
+}
+
+.error {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.error h2 {
+  margin-bottom: 1rem;
+}

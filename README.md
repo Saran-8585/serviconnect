@@ -189,6 +189,10 @@ The project includes 8 seed files with sample data for development and testing. 
 cd server && npm run seed
 ```
 
+### Services Page
+
+Browse all providers and filter by category at `/services`. Category tabs are populated from the database, and clicking a card navigates to `/services?category=<slug>` to show filtered providers with their service listings.
+
 ### ML Model Training
 
 After seeding, train the recommendation model:
@@ -310,8 +314,8 @@ serviconnect/
 |-------|-----------|------|--------|
 | **Auth** | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PUT /api/auth/profile` | Public / JWT | Done |
 | **Categories** | `GET /api/categories`, `GET /api/categories/:id`, `GET /api/categories/slug/:slug` | Public | Done |
-| **Providers** | `GET /api/providers`, `GET /api/providers/:id`, `GET /api/providers/:id/reviews` | Public | Pending |
-| **Services** | `GET /api/services`, `GET /api/services/:id` | Public | Pending |
+| **Providers** | `GET /api/providers`, `GET /api/providers/:id` | Public | Done |
+| **Services** | `GET /api/services`, `GET /api/services/:id` (included in provider response) | Public | Done |
 | **Bookings** | `POST /api/bookings`, `GET /api/bookings`, `PATCH /api/bookings/:id/status` | JWT | Pending |
 | **Reviews** | `POST /api/reviews`, `GET /api/reviews/provider/:id` | JWT | Pending |
 | **Messages** | `GET /api/messages/:conversationId`, `POST /api/messages` | JWT | Pending |

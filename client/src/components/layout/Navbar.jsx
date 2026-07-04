@@ -31,6 +31,9 @@ export default function Navbar() {
               <Link to={user.role === 'provider' ? '/provider' : '/dashboard'} className={styles.link}>
                 Dashboard
               </Link>
+              <Link to="/" className={styles.link} onClick={() => alert('Messages coming soon.')}>
+                Messages
+              </Link>
               <div className={styles.avatar}>
                 {user.name.charAt(0).toUpperCase()}
               </div>

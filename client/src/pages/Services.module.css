@@ -1,0 +1,185 @@
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.categoryTabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.tab {
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  background: var(--color-surface-elevated, #f3f4f6);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.tab:hover {
+  background: var(--color-primary-100, #ccfbf1);
+  color: var(--color-primary-700, #0f766e);
+}
+
+.tabActive {
+  background: var(--color-primary-500);
+  color: white;
+  border-color: var(--color-primary-500);
+}
+
+.tabActive:hover {
+  background: var(--color-primary-600);
+  color: white;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.cardLink:hover .card {
+  border-color: var(--color-primary-300);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.1));
+}
+
+.card {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-primary-500);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.cardInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.businessName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.providerName {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 2px 0 0;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reviewCount {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.servicesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.serviceItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.serviceName {
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+}
+
+.servicePrice {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-accent-500);
+}
+
+.moreServices {
+  font-size: 0.78rem;
+  color: var(--color-primary-500);
+  margin: 0;
+}
+
+.area {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.error {
+  text-align: center;
+  color: var(--color-error, #ef4444);
+  padding: 2rem;
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-muted);
+}
+
+.backLink {
+  color: var(--color-primary-500);
+  text-decoration: none;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  display: inline-block;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}

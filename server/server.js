@@ -28,21 +28,14 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', require('./src/routes/auth.routes'));
 app.use('/api/categories', require('./src/routes/category.routes'));
+app.use('/api/providers', require('./src/routes/provider.routes'));
 app.use('/api/recommendations', require('./src/routes/recommendation.routes'));
+app.use('/api/bookings', require('./src/routes/booking.routes'));
+app.use('/api/messages', require('./src/routes/message.routes'));
 
 app.use(errorHandler);
 
-io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
-
-  socket.on('join', (userId) => {
-    socket.join(`user:${userId}`);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
-});
+require('./src/sockets/chat.handler')(io);
 
 const PORT = process.env.PORT || 5000;
 

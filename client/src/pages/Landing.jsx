@@ -4,17 +4,16 @@ import Input from '../components/ui/Input/Input';
 import styles from './Landing.module.css';
 
 const categories = [
-  { name: 'Home Cleaning', icon: '🧹' },
-  { name: 'Electrical', icon: '⚡' },
-  { name: 'Plumbing', icon: '🔧' },
-  { name: 'Painting', icon: '🎨' },
-  { name: 'Beauty Parlour', icon: '💅' },
-  { name: 'Cab Driver', icon: '🚕' },
-  { name: 'Refresher Courses', icon: '🔄' },
-  { name: 'Tuition', icon: '📖' },
-  { name: 'Pest Control', icon: '🐜' },
-  { name: 'Moving & Packing', icon: '📦' },
-  { name: 'Carpentry', icon: '🪚' },
+  { name: 'Plumbing', slug: 'plumbing', icon: '🔧' },
+  { name: 'Electrical', slug: 'electrical', icon: '⚡' },
+  { name: 'Cleaning', slug: 'cleaning', icon: '🧹' },
+  { name: 'Painting', slug: 'painting', icon: '🎨' },
+  { name: 'Carpentry', slug: 'carpentry', icon: '🪚' },
+  { name: 'Appliance Repair', slug: 'appliance-repair', icon: '🔧' },
+  { name: 'Cab Driver', slug: 'cab-driver', icon: '🚕' },
+  { name: 'Refresher Courses', slug: 'refresher-courses', icon: '🔄' },
+  { name: 'Tuition', slug: 'tuition', icon: '📖' },
+  { name: 'Beauty Parlour', slug: 'beauty-parlour', icon: '💅' },
 ];
 
 export default function Landing() {
@@ -35,9 +34,9 @@ export default function Landing() {
               <Link to="/register">
                 <Button size="lg">Get Started</Button>
               </Link>
-              <Link to="/services">
+              <a href="#categories">
                 <Button variant="secondary" size="lg">Browse Services</Button>
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -55,7 +54,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className={styles.categoriesSection}>
+      <section id="categories" className={styles.categoriesSection}>
         <div className="container">
           <h2 className={styles.sectionTitle}>Browse by Category</h2>
           <p className={styles.sectionSubtitle}>
@@ -63,7 +62,7 @@ export default function Landing() {
           </p>
           <div className={styles.categoriesGrid}>
             {categories.map((cat) => (
-              <Link to={`/services?category=${cat.name.toLowerCase()}`} key={cat.name}>
+              <Link to={`/services?category=${cat.slug}`} key={cat.name}>
                 <div className={styles.categoryCard}>
                   <div className={styles.categoryIcon}>{cat.icon}</div>
                   <span className={styles.categoryName}>{cat.name}</span>

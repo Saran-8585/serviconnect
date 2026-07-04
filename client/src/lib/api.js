@@ -40,6 +40,27 @@ export const categories = {
   getBySlug: (slug) => api.get(`/categories/slug/${slug}`),
 };
 
+export const providers = {
+  getAll: (params) => api.get('/providers', { params }),
+  getById: (id) => api.get(`/providers/${id}`),
+};
+
+export const bookings = {
+  create: (data) => api.post('/bookings', data),
+  getAll: () => api.get('/bookings'),
+  getById: (id) => api.get(`/bookings/${id}`),
+  updateStatus: (id, status) => api.patch(`/bookings/${id}/status`, { status }),
+  getSlots: (params) => api.get('/bookings/slots', { params }),
+};
+
+export const messages = {
+  send: (data) => api.post('/messages', data),
+  getConversations: () => api.get('/messages'),
+  getConversation: (userId) => api.get(`/messages/conversation/${userId}`),
+  markRead: (id) => api.put(`/messages/${id}/read`),
+  markConversationRead: (userId) => api.put(`/messages/conversation/${userId}/read`),
+};
+
 export const recommendations = {
   get: () => api.get('/recommendations'),
   train: () => api.post('/recommendations/train'),
