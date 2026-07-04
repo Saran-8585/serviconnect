@@ -2,7 +2,7 @@
 
 **Connect with trusted local service providers.**
 
-Serviconnect is a full-stack web application that bridges the gap between customers and local service professionals. Built with the MERN stack (MongoDB replaced with SQLite), it enables users to discover, compare, and book verified service providers for home services, repairs, and professional needs.
+Serviconnect is a full-stack web application that bridges the gap between customers and local service professionals. Built with the MERN stack (MongoDB replaced with SQLite), it aims to let users discover, compare, and book verified service providers for home services, repairs, and professional needs.
 
 Whether you need a plumber, an electrician, a home cleaning service, or a tutor — Serviconnect makes it easy to find the right person for the job, check their availability, and book in seconds.
 
@@ -19,9 +19,9 @@ Serviconnect unifies the entire service lifecycle on a single platform:
 
 ### Key Differentiators
 
-- **Real-time communication** — Built-in Socket.io chat lets customers and providers coordinate without leaving the platform.
 - **Role-based access** — Three distinct user roles (Customer, Provider, Admin) with tailored dashboards and permissions.
 - **Dark mode** — Full theme support with system preference detection and persistent user choice.
+- **ML-powered recommendations** — TensorFlow.js collaborative filtering recommends providers based on your booking history.
 - **Relational integrity** — SQLite with foreign keys and transactions guarantees no double-bookings and consistent data.
 - **Zero setup** — No Docker, no cloud database, no environment variables to configure beyond a single `.env` file.
 
@@ -51,12 +51,13 @@ Serviconnect unifies the entire service lifecycle on a single platform:
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | React 18, Vite, CSS Modules, React Router v6 |
-| **Backend** | Node.js, Express 4 |
-| **Database** | SQLite via better-sqlite3 + Knex.js |
-| **Authentication** | JWT (JSON Web Tokens) + bcrypt |
-| **Real-time** | Socket.io (chat, notifications) |
-| **Validation** | express-validator (server), custom hooks (client) |
+| **Frontend** | React 18.3, Vite 6, CSS Modules, React Router v6.28 |
+| **Backend** | Node.js, Express 4.21 |
+| **Database** | SQLite via better-sqlite3 v11.7 + Knex.js v3.1 |
+| **Authentication** | JWT (JSON Web Tokens) + bcryptjs |
+| **Real-time** | Socket.io v4.8 (planned for chat) |
+| **Validation** | express-validator v7.2 (server), custom hooks (client) |
+| **Machine Learning** | TensorFlow.js v4.22 — Collaborative filtering recommender system |
 
 ### Why SQLite instead of MongoDB?
 
@@ -72,12 +73,12 @@ Serviconnect unifies the entire service lifecycle on a single platform:
 The application follows a **modular monolith** pattern — a single Express server with clear separation between routes, controllers, services, and data access layers. The frontend is a decoupled React SPA that communicates with the backend via REST APIs.
 
 ```
-┌─────────────┐     ┌───────────────────┐     ┌──────────┐
-│  React SPA  │────▶│  Express REST API │────▶│  SQLite  │
-│  (Vite)     │◀────│  + Socket.io      │◀────│  (Knex)  │
-└─────────────┘     └───────────────────┘     └──────────┘
-       │                       │
-       │                       │
++-------------+     +-------------------+     +----------+
+|  React SPA  |---->|  Express REST API |---->|  SQLite  |
+|  (Vite)     |<----|  + Socket.io      |<----|  (Knex)  |
++-------------+     +-------------------+     +----------+
+       |                       |
+       |                       |
   CSS Modules            JWT Auth
   Design Tokens          Validators
 ```
@@ -90,12 +91,16 @@ The application follows a **modular monolith** pattern — a single Express serv
 
 - **User authentication** — Register, login, JWT-based session management
 - **Profile management** — Update name, phone, avatar
-- **Role-based access** — Customer, provider, and admin roles
-- **Dark mode** — Full theme support with system preference detection
+- **Role-based access** — Customer, provider, and admin roles (with protected routes)
+- **Dark mode** — Full theme support with system preference detection and manual toggle
 - **Responsive design** — Mobile-first layout across all pages
-- **UI component library** — 7 reusable primitives with variant system
+- **UI component library** — 7 reusable primitives (Button, Input, Card, Modal, Badge, Skeleton, Toast) with variant system
 - **Landing page** — Hero section, category grid, how-it-works flow
-- **Category browsing** — Browse services by category with search and filters
+- **Category browsing** — Browse all 10 service categories via REST API
+- **ML recommendations** — Personalized provider recommendations powered by TensorFlow.js collaborative filtering
+
+### In Development
+
 - **Provider onboarding** — Business profiles, service listings, verification
 - **Booking engine** — Date/time selection, availability management, status flow
 - **Real-time chat** — Socket.io messaging between customers and providers
@@ -128,6 +133,7 @@ Dashboard with platform analytics, manage users and providers, create and manage
 
 - **Node.js** v18 or later
 - **npm** v9 or later
+- **C++ build tools** (required by TensorFlow.js native binding — `build-essential` on Linux, Xcode CLI tools on macOS, or Visual Studio Build Tools on Windows)
 
 ### Installation
 
@@ -183,6 +189,18 @@ The project includes 8 seed files with sample data for development and testing. 
 cd server && npm run seed
 ```
 
+### ML Model Training
+
+After seeding, train the recommendation model:
+
+```bash
+curl -X POST http://localhost:5001/api/recommendations/train \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json"
+```
+
+Or log in as admin at the frontend and the model will train automatically on first request.
+
 ### Test Accounts
 
 All seed accounts use the password `password123`:
@@ -204,7 +222,7 @@ All seed accounts use the password `password123`:
 | Table | Records | Details |
 |-------|---------|---------|
 | `users` | 9 | 1 admin, 6 providers, 2 customers |
-| `categories` | 6 | Plumbing, Electrical, Cleaning, Painting, Carpentry, Appliance Repair |
+| `categories` | 10 | Plumbing, Electrical, Cleaning, Painting, Carpentry, Appliance Repair, Cab Driver, Refresher Courses, Tuition, Beauty Parlour |
 | `provider_profiles` | 6 | Ravi (Plumbing), Amit (Electrical), Vikram (Cleaning), Ananya (Painting), Rajesh (Carpentry), Meera (Appliance Repair) |
 | `services` | 15 | 3 per category across all 6 categories |
 | `bookings` | 13 | 7 completed, 2 confirmed, 3 pending, 1 cancelled |
@@ -226,47 +244,47 @@ cd server && npm run seed
 
 ```
 serviconnect/
-├── client/                     # React frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── ui/             # Primitive components (Button, Input, Card, etc.)
-│   │   │   ├── layout/         # Navbar, Footer, ProtectedRoute
-│   │   │   ├── customer/       # Customer-specific components
-│   │   │   ├── provider/       # Provider-specific components
-│   │   │   └── admin/          # Admin-specific components
-│   │   ├── pages/
-│   │   │   ├── auth/           # Login, Register
-│   │   │   ├── customer/       # Browse, Book, MyBookings
-│   │   │   ├── provider/       # Dashboard, Services, Bookings
-│   │   │   └── admin/          # Dashboard, Users, Categories
-│   │   ├── context/            # AuthContext, ThemeContext
-│   │   ├── hooks/              # Custom React hooks
-│   │   ├── lib/                # Axios instance, utilities
-│   │   ├── styles/             # Design tokens, global CSS
-│   │   └── utils/              # Formatters, validators
-│   ├── vite.config.js
-│   └── package.json
-├── server/                     # Express backend
-│   ├── src/
-│   │   ├── config/             # Database connection (Knex)
-│   │   ├── middleware/         # Auth, error handler, validation
-│   │   ├── models/             # Data access layer
-│   │   ├── controllers/        # Request handlers
-│   │   ├── services/           # Business logic
-│   │   ├── routes/             # Route definitions
-│   │   ├── validators/         # express-validator schemas
-│   │   ├── utils/              # Helpers, AppError
-│   │   └── sockets/            # Socket.io event handlers
-│   ├── migrations/             # Knex database migrations
-│   ├── seeds/                  # Sample data
-│   ├── server.js               # Entry point
-│   ├── knexfile.js
-│   └── package.json
-├── .env.example
-├── .gitignore
-├── package.json                # Root (concurrently script)
-└── README.md
++-- client/                     # React frontend
+|   +-- public/
+|   +-- src/
+|   |   +-- components/
+|   |   |   +-- ui/             # Primitive components (Button, Input, Card, etc.)
+|   |   |   +-- layout/         # Navbar, Footer, ProtectedRoute
+|   |   |   +-- admin/          # (scaffolded, empty)
+|   |   |   +-- customer/       # (scaffolded, empty)
+|   |   |   +-- provider/       # (scaffolded, empty)
+|   |   +-- pages/
+|   |   |   +-- auth/           # Login, Register
+|   |   |   +-- customer/       # (not yet created)
+|   |   |   +-- provider/       # (not yet created)
+|   |   |   +-- admin/          # (not yet created)
+|   |   +-- context/            # AuthContext, ThemeContext
+|   |   +-- hooks/              # (empty, ready for custom hooks)
+|   |   +-- lib/                # Axios instance, CVA utility
+|   |   +-- styles/             # Design tokens, global CSS, reset, animations
+|   |   +-- utils/              # (empty, ready for formatters/validators)
+|   +-- vite.config.js
+|   +-- package.json
++-- server/                     # Express backend
+|   +-- src/
+|   |   +-- config/             # Database connection (Knex)
+|   |   +-- middleware/         # Auth, error handler, validation
+|   |   +-- models/             # Data access layer
+|   |   +-- controllers/        # Request handlers
+|   |   +-- services/           # Business logic (empty, ready)
+|   |   +-- routes/             # Route definitions
+|   |   +-- validators/         # express-validator schemas
+|   |   +-- utils/              # Helpers, AppError
+|   |   +-- sockets/            # Socket.io event handlers (empty, ready)
+|   +-- migrations/             # Knex database migrations (8 files)
+|   +-- seeds/                  # Sample data (8 files)
+|   +-- server.js               # Entry point
+|   +-- knexfile.js
+|   +-- package.json
++-- .env.example
++-- .gitignore
++-- package.json                # Root (concurrently script)
++-- README.md
 ```
 
 ---
@@ -288,16 +306,52 @@ serviconnect/
 
 ## API Overview
 
-| Group | Endpoints | Auth |
-|-------|-----------|------|
-| **Auth** | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PUT /api/auth/profile` | Public / JWT |
-| **Categories** | `GET /api/categories`, `GET /api/categories/:id` | Public |
-| **Providers** | `GET /api/providers`, `GET /api/providers/:id`, `GET /api/providers/:id/reviews` | Public |
-| **Services** | `GET /api/services`, `GET /api/services/:id` | Public |
-| **Bookings** | `POST /api/bookings`, `GET /api/bookings`, `PATCH /api/bookings/:id/status` | JWT |
-| **Reviews** | `POST /api/reviews`, `GET /api/reviews/provider/:id` | JWT |
-| **Messages** | `GET /api/messages/:conversationId`, `POST /api/messages` | JWT |
-| **Admin** | `GET /api/admin/dashboard`, `GET /api/admin/users`, `POST /api/admin/categories` | Admin |
+| Group | Endpoints | Auth | Status |
+|-------|-----------|------|--------|
+| **Auth** | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PUT /api/auth/profile` | Public / JWT | Done |
+| **Categories** | `GET /api/categories`, `GET /api/categories/:id`, `GET /api/categories/slug/:slug` | Public | Done |
+| **Providers** | `GET /api/providers`, `GET /api/providers/:id`, `GET /api/providers/:id/reviews` | Public | Pending |
+| **Services** | `GET /api/services`, `GET /api/services/:id` | Public | Pending |
+| **Bookings** | `POST /api/bookings`, `GET /api/bookings`, `PATCH /api/bookings/:id/status` | JWT | Pending |
+| **Reviews** | `POST /api/reviews`, `GET /api/reviews/provider/:id` | JWT | Pending |
+| **Messages** | `GET /api/messages/:conversationId`, `POST /api/messages` | JWT | Pending |
+| **Admin** | `GET /api/admin/dashboard`, `GET /api/admin/users`, `POST /api/admin/categories` | Admin | Pending |
+| **Recommendations** | `GET /api/recommendations`, `POST /api/recommendations/train` | JWT / Admin | Done |
+
+---
+
+## Machine Learning — Provider Recommendation Engine
+
+Serviconnect uses **TensorFlow.js** to power a collaborative filtering recommendation system that suggests relevant service providers to customers.
+
+### How It Works
+
+1. **Data Collection** — The system reads all booking history to build user-provider interaction pairs.
+2. **Model Architecture** — A two-tower neural network with 32-dimensional embeddings for both users and providers.
+3. **Training** — The model learns to predict booking probability by minimizing mean squared error between predicted and actual interactions. Training runs on-demand via the admin endpoint.
+4. **Inference** — For a logged-in customer, the system computes dot-product similarity scores between their embedding and all active provider embeddings, returning the top-6 most relevant providers.
+5. **Cold Start** — New users with no booking history receive popularity-based recommendations (top-rated providers). New providers are recommended via category similarity.
+
+### API
+
+| Method | Endpoint | Auth | Description |
+|--------|---------|------|-------------|
+| `GET` | `/api/recommendations` | JWT (Customer) | Get top-6 recommended providers for the logged-in user |
+| `POST` | `/api/recommendations/train` | Admin | Retrain the model from latest booking data |
+
+### Training the Model
+
+```bash
+# Log in as admin
+curl -X POST http://localhost:5001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@serviconnect.com", "password": "password123"}'
+
+# Use the returned token to train
+curl -X POST http://localhost:5001/api/recommendations/train \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json"
+```
 
 ---
 
@@ -317,14 +371,14 @@ The UI is built with a custom design token system — no Tailwind, no Bootstrap,
 ### Typography
 
 - **Font**: Inter (headings) + system font stack (body)
-- **Scale**: 0.75rem → 2.5rem across 9 steps
+- **Scale**: 0.75rem to 2.5rem across 9 steps
 - **Weights**: 400, 500, 600, 700, 800
 
 ### Components
 
 7 primitive components with variant support via CVA (Class Variance Authority):
 
-**Button** — `primary`, `secondary`, `ghost`, `accent`, `danger` × `sm`, `md`, `lg`
+**Button** — `primary`, `secondary`, `ghost`, `accent`, `danger` times `sm`, `md`, `lg`
 **Input** — with label, error state, textarea variant
 **Card** — `sm`, `md`, `lg` padding, clickable hover effect
 **Modal** — `sm`, `md`, `lg` sizes, backdrop blur, escape-to-close
@@ -338,12 +392,13 @@ The UI is built with a custom design token system — no Tailwind, no Bootstrap,
 
 | Phase | Focus | Status |
 |-------|-------|--------|
-| **1. Foundation** | Monorepo, SQLite, Auth, UI primitives, Layout | ✅ Complete |
-| **2. Categories & Providers** | Category CRUD, Provider onboarding, Service CRUD, Browse/Search | ✅ Complete |
-| **3. Booking Engine** | Date/time slots, Availability, Status flow, Booking UI | ✅ Complete |
-| **4. Reviews & Real-time** | Ratings, Socket.io chat, Notifications | ✅ Complete |
-| **5. Admin Panel** | Dashboard, User/Provider management, Category admin | 🔜 Next |
-| **6. Polish** | Loading states, Error boundaries, Deployment | ⏳ Planned |
+| **1. Foundation** | Monorepo, SQLite, Auth, UI primitives, Layout | Done |
+| **2. Categories & Providers** | Category CRUD, Provider onboarding, Service CRUD, Browse/Search | Done |
+| **3. Booking Engine** | Date/time slots, Availability, Status flow, Booking UI | In progress |
+| **4. Reviews & Real-time** | Ratings, Socket.io chat, Notifications | In progress |
+| **5. ML Recommendations** | TensorFlow.js collaborative filtering, personalized provider suggestions | Done |
+| **6. Admin Panel** | Dashboard, User/Provider management, Category admin | Planned |
+| **7. Polish** | Loading states, Error boundaries, Deployment | Planned |
 
 ---
 

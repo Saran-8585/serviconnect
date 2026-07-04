@@ -1,0 +1,576 @@
+================================================================================
+                        SERVICONNECT - DATABASE DESIGN
+================================================================================
+   A service marketplace platform connecting customers with local service
+   providers (plumbers, electricians, cleaners, painters, carpenters,
+   appliance repair technicians, cab drivers, tutors, beauty parlours, and
+   refresher course trainers).
+================================================================================
+
+TABLE OF CONTENTS
+  1. Overview
+  2. Entity-Relationship Diagram
+  3. Table Schemas
+    3.1  users
+    3.2  categories
+    3.3  provider_profiles
+    3.4  services
+    3.5  bookings
+    3.6  reviews
+    3.7  messages
+    3.8  notifications
+  4. Relationship Map
+  5. Indexes & Constraints
+  6. Seed Data Summary
+  7. Data Integrity & Business Rules
+  8. SQLite Configuration
+
+================================================================================
+1. OVERVIEW
+================================================================================
+
+  Database Engine  : SQLite 3 (via better-sqlite3)
+  Query Builder    : Knex.js v3.1
+  Total Tables     : 8
+  Migration Tool   : Knex Migrations
+  Seed Tool        : Knex Seeds
+  Location         : server/data/serviconnect.db
+  Concurrency      : WAL (Write-Ahead Logging) mode for concurrent reads
+  Integrity        : Foreign keys enforced via PRAGMA foreign_keys = ON
+  Timeouts         : Busy timeout set to 5000ms for write contention
+
+  Design Principles:
+    - Minimal redundancy (normalized to 3NF)
+    - Foreign keys with cascade/set-null for referential integrity
+    - Compound index on bookings to prevent double-booking
+    - One review per booking (UNIQUE constraint on booking_id)
+    - Soft-delete via is_active/is_read flags instead of hard deletes
+
+================================================================================
+2. ENTITY-RELATIONSHIP DIAGRAM
+================================================================================
+
+  +------------------+          +---------------------+
+  |      users       |          |     categories      |
+  |------------------|          |---------------------|
+  | id (PK)          |<---+     | id (PK)             |
+  | name             |    |     | name                |
+  | email (UQ)       |    |     | slug (UQ)           |
+  | password         |    |     | description         |
+  | phone            |    |     | icon                |
+  | role             |    |     | image               |
+  | avatar           |    |     | parent_id (FK)  ----+-- (self-ref)
+  | address          |    |     | sort_order          |
+  | is_active        |    |     | is_active           |
+  | created_at       |    |     | created_at          |
+  | updated_at       |    |     +---------------------+
+  +------------------+    |              |
+       |      |           |              |
+       |      |           |  +---------------------+
+       |      |           +--|      services       |
+       |      |              |---------------------|
+       |      |   +----------| id (PK)             |
+       |      |   |          | provider_id (FK) ----+-- (to provider_profiles)
+       |      |   |          | category_id (FK) ----+-- (to categories)
+       |      |   |          | name                |
+       |      |   |          | description         |
+       |      |   |          | price               |
+       |      |   |          | duration            |
+       |      |   |          | images              |
+       |      |   |          | is_active           |
+       |      |   |          | created_at          |
+       |      |   |          | updated_at          |
+       |      |   |          +---------------------+
+       |      |   |                  |
+       |      |   |                  |
+  +------------------+   +---------------------+
+  | provider_profiles|   |      bookings       |
+  |------------------|   |---------------------|
+  | id (PK)          |   | id (PK)             |
+  | user_id (FK) ----+   | customer_id (FK) ---+-- (to users)
+  | business_name    |<--| provider_id (FK) ----+-- (to provider_profiles)
+  | description      |   | service_id (FK) -----+-- (to services)
+  | logo             |   | booking_date        |
+  | rating           |   | time_slot           |
+  | total_reviews    |   | status              |
+  | service_area     |   | address             |
+  | is_verified      |   | notes               |
+  | is_approved      |   | total_amount        |
+  | created_at       |   | created_at          |
+  | updated_at       |   | updated_at          |
+  +------------------+   +---------------------+
+       |                        |
+       |                        |
+       |  +------------------+  |
+       +--|     reviews      |<-+
+       |  |------------------|
+       |  | id (PK)          |
+       |  | booking_id (UQ) -+-- (to bookings)
+       |  | customer_id (FK)-+-- (to users)
+       |  | provider_id (FK)-+-- (to provider_profiles)
+       |  | rating           |
+       |  | comment          |
+       |  | created_at       |
+       |  +------------------+
+       |
+       |  +------------------+
+       +--|    messages      |
+       |  |------------------|
+       |  | id (PK)          |
+       |  | sender_id (FK) --+-- (to users)
+       |  | receiver_id (FK)-+-- (to users)
+       |  | booking_id (FK) -+-- (to bookings, nullable)
+       |  | content          |
+       |  | attachment       |
+       |  | read_at          |
+       |  | created_at       |
+       |  +------------------+
+       |
+       |  +------------------+
+       +--|  notifications   |
+          |------------------|
+          | id (PK)          |
+          | user_id (FK) ----+-- (to users)
+          | type             |
+          | title            |
+          | message          |
+          | related_id       |
+          | is_read          |
+          | created_at       |
+          +------------------+
+
+  LEGEND:
+    PK  = Primary Key
+    FK  = Foreign Key
+    UQ  = Unique Constraint
+    --+ = Relationship line pointing to referenced table
+
+================================================================================
+3. TABLE SCHEMAS
+================================================================================
+
+3.1  users
+------------------------------------------------------------------------------
+  Purpose: Stores all platform users regardless of role.
+
+  Column          | Type         | Constraints              | Default
+  ----------------|--------------|--------------------------|--------------
+  id              | INTEGER      | PRIMARY KEY AUTOINCREMENT|
+  name            | VARCHAR(255) | NOT NULL                 |
+  email           | VARCHAR(255) | NOT NULL, UNIQUE         |
+  password        | VARCHAR(255) | NOT NULL                 |
+  phone           | VARCHAR(20)  |                          |
+  role            | VARCHAR(20)  | NOT NULL                 | 'customer'
+  avatar          | VARCHAR(255) |                          |
+  address         | TEXT         |                          |
+  is_active       | BOOLEAN      |                          | TRUE
+  created_at      | TIMESTAMP    |                          | CURRENT_TIMESTAMP
+  updated_at      | TIMESTAMP    |                          | CURRENT_TIMESTAMP
+
+  Indexes: email, role
+
+  Notes:
+    - role values: 'customer', 'provider', 'admin'
+    - password stores bcrypt hash (12 salt rounds)
+    - deactivating a user (is_active = FALSE) soft-disables the account
+      without losing associated data
+
+3.2  categories
+------------------------------------------------------------------------------
+  Purpose: Hierarchical service categories (e.g., Plumbing -> Pipe Repair).
+
+  Column          | Type         | Constraints              | Default
+  ----------------|--------------|--------------------------|--------------
+  id              | INTEGER      | PRIMARY KEY AUTOINCREMENT|
+  name            | VARCHAR(255) | NOT NULL                 |
+  slug            | VARCHAR(255) | NOT NULL, UNIQUE         |
+  description     | TEXT         |                          |
+  icon            | VARCHAR(255) |                          |
+  image           | VARCHAR(255) |                          |
+  parent_id       | INTEGER      | FK -> categories.id      | NULL
+  sort_order      | INTEGER      |                          | 0
+  is_active       | BOOLEAN      |                          | TRUE
+  created_at      | TIMESTAMP    |                          | CURRENT_TIMESTAMP
+
+  Indexes: slug, parent_id
+
+  Notes:
+    - parent_id enables subcategories (self-referential FK)
+    - ON DELETE SET NULL: if a parent category is deleted, children become
+      top-level categories rather than being deleted
+    - slug is used for URL-friendly routing (e.g., 'appliance-repair')
+
+3.3  provider_profiles
+------------------------------------------------------------------------------
+  Purpose: Extended business information for providers (1:1 with users).
+
+  Column          | Type         | Constraints              | Default
+  ----------------|--------------|--------------------------|--------------
+  id              | INTEGER      | PRIMARY KEY AUTOINCREMENT|
+  user_id         | INTEGER      | NOT NULL, FK -> users.id |
+  business_name   | VARCHAR(255) | NOT NULL                 |
+  description     | TEXT         |                          |
+  logo            | VARCHAR(255) |                          |
+  rating          | DECIMAL(3,2) |                          | 0.00
+  total_reviews   | INTEGER      |                          | 0
+  service_area    | VARCHAR(255) |                          |
+  is_verified     | BOOLEAN      |                          | FALSE
+  is_approved     | BOOLEAN      |                          | FALSE
+  created_at      | TIMESTAMP    |                          | CURRENT_TIMESTAMP
+  updated_at      | TIMESTAMP    |                          | CURRENT_TIMESTAMP
+
+  Indexes: user_id, is_verified, is_approved
+
+  Notes:
+    - 1:1 relationship: one user (with role='provider') has exactly one profile
+    - rating is a computed/averaged value from reviews table
+    - total_reviews is a denormalized counter for quick display without COUNT(*)
+    - is_verified indicates identity/document verification
+    - is_approved allows admin to approve/reject providers
+    - ON DELETE CASCADE: deleting a user deletes their provider profile
+
+3.4  services
+------------------------------------------------------------------------------
+  Purpose: Individual service listings offered by providers.
+
+  Column          | Type         | Constraints              | Default
+  ----------------|--------------|--------------------------|--------------
+  id              | INTEGER      | PRIMARY KEY AUTOINCREMENT|
+  provider_id     | INTEGER      | NOT NULL, FK -> provider_profiles.id |
+  category_id     | INTEGER      | NOT NULL, FK -> categories.id |
+  name            | VARCHAR(255) | NOT NULL                 |
+  description     | TEXT         |                          |
+  price           | DECIMAL(10,2)| NOT NULL                 |
+  duration        | INTEGER      | NOT NULL                 | 60
+  images          | TEXT         |                          |
+  is_active       | BOOLEAN      |                          | TRUE
+  created_at      | TIMESTAMP    |                          | CURRENT_TIMESTAMP
+  updated_at      | TIMESTAMP    |                          | CURRENT_TIMESTAMP
+
+  Indexes: provider_id, category_id, is_active
+
+  Notes:
+    - duration is in minutes (e.g., 60 = 1 hour, 480 = 8 hours)
+    - images stores JSON array of image URLs as plain text (SQLite)
+    - price is in INR (Indian Rupees)
+    - ON DELETE CASCADE: deleting a provider profile removes all their services
+
+3.5  bookings
+------------------------------------------------------------------------------
+  Purpose: Customer bookings / appointments for services.
+
+  Column          | Type         | Constraints              | Default
+  ----------------|--------------|--------------------------|--------------
+  id              | INTEGER      | PRIMARY KEY AUTOINCREMENT|
+  customer_id     | INTEGER      | NOT NULL, FK -> users.id |
+  provider_id     | INTEGER      | NOT NULL, FK -> provider_profiles.id |
+  service_id      | INTEGER      | NOT NULL, FK -> services.id |
+  booking_date    | DATE         | NOT NULL                 |
+  time_slot       | VARCHAR(50)  | NOT NULL                 |
+  status          | VARCHAR(20)  | NOT NULL                 | 'pending'
+  address         | TEXT         |                          |
+  notes           | TEXT         |                          |
+  total_amount    | DECIMAL(10,2)|                          |
+  created_at      | TIMESTAMP    |                          | CURRENT_TIMESTAMP
+  updated_at      | TIMESTAMP    |                          | CURRENT_TIMESTAMP
+
+  Indexes: customer_id, provider_id, status
+  Compound Index: (provider_id, booking_date, time_slot) -- prevents double-booking
+
+  Notes:
+    - status values: 'pending', 'confirmed', 'completed', 'cancelled'
+    - The compound index on (provider_id, booking_date, time_slot) is the key
+      integrity mechanism: it prevents two bookings from being made for the
+      same provider at the same date and time slot
+    - time_slot format: 'HH:MM-HH:MM' (e.g., '10:00-11:00')
+    - total_amount is copied from service.price at booking time so price
+      changes don't affect historical bookings
+    - ON DELETE CASCADE: deleting any referenced entity removes the booking
+
+3.6  reviews
+------------------------------------------------------------------------------
+  Purpose: Post-service ratings and feedback from customers.
+
+  Column          | Type         | Constraints              | Default
+  ----------------|--------------|--------------------------|--------------
+  id              | INTEGER      | PRIMARY KEY AUTOINCREMENT|
+  booking_id      | INTEGER      | NOT NULL, FK -> bookings.id, UNIQUE |
+  customer_id     | INTEGER      | NOT NULL, FK -> users.id |
+  provider_id     | INTEGER      | NOT NULL, FK -> provider_profiles.id |
+  rating          | INTEGER      | NOT NULL                 | 5
+  comment         | TEXT         |                          |
+  created_at      | TIMESTAMP    |                          | CURRENT_TIMESTAMP
+
+  Indexes: provider_id
+  Unique:   booking_id (one review per booking)
+
+  Notes:
+    - rating is an integer 1-5 (no decimal)
+    - UNIQUE on booking_id ensures exactly one review per completed booking
+    - booking_id + customer_id could also serve as a natural key
+    - ON DELETE CASCADE: if a booking is deleted, its review is also removed
+
+3.7  messages
+------------------------------------------------------------------------------
+  Purpose: Real-time chat messages between customers and providers.
+
+  Column          | Type         | Constraints              | Default
+  ----------------|--------------|--------------------------|--------------
+  id              | INTEGER      | PRIMARY KEY AUTOINCREMENT|
+  sender_id       | INTEGER      | NOT NULL, FK -> users.id |
+  receiver_id     | INTEGER      | NOT NULL, FK -> users.id |
+  booking_id      | INTEGER      | FK -> bookings.id        | NULL
+  content         | TEXT         | NOT NULL                 |
+  attachment      | VARCHAR(255) |                          |
+  read_at         | TIMESTAMP    |                          | NULL
+  created_at      | TIMESTAMP    |                          | CURRENT_TIMESTAMP
+
+  Indexes: (sender_id, receiver_id), booking_id
+
+  Notes:
+    - booking_id is optional (nullable) for messages that may be associated
+      with a specific booking or general conversation
+    - read_at = NULL means unread; populated when the receiver opens the message
+    - attachment stores a file path/URL for image/file attachments
+    - ON DELETE CASCADE for sender/receiver (user deletion removes messages)
+    - ON DELETE SET NULL for booking_id: if a booking is deleted, chat
+      history remains but without the booking association
+
+3.8  notifications
+------------------------------------------------------------------------------
+  Purpose: In-app notification system for alerts and updates.
+
+  Column          | Type         | Constraints              | Default
+  ----------------|--------------|--------------------------|--------------
+  id              | INTEGER      | PRIMARY KEY AUTOINCREMENT|
+  user_id         | INTEGER      | NOT NULL, FK -> users.id |
+  type            | VARCHAR(50)  | NOT NULL                 |
+  title           | VARCHAR(255) | NOT NULL                 |
+  message         | TEXT         |                          |
+  related_id      | INTEGER      |                          | NULL
+  is_read         | BOOLEAN      |                          | FALSE
+  created_at      | TIMESTAMP    |                          | CURRENT_TIMESTAMP
+
+  Indexes: user_id, is_read
+
+  Notes:
+    - type categorizes the notification (e.g., 'booking_confirmed',
+      'new_review', 'booking_cancelled')
+    - related_id is a polymorphic reference to the entity that triggered
+      the notification (could be a booking_id, review_id, etc.)
+    - is_read allows for read/unread filtering without hard delete
+    - ON DELETE CASCADE: deleting a user removes their notifications
+
+================================================================================
+4. RELATIONSHIP MAP
+================================================================================
+
+  FROM               | TO                 | TYPE    | ON DELETE | DESCRIPTION
+  -------------------|--------------------|---------|-----------|---------------------------
+  categories         | categories         | Self    | SET NULL  | Subcategory parent
+    (parent_id)      |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+  provider_profiles  | users              | 1:1     | CASCADE   | Auth user -> business
+    (user_id)        |   (id)             |         |           |   profile
+  -------------------|--------------------|---------|-----------|---------------------------
+  services           | provider_profiles  | M:1     | CASCADE   | Provider's offerings
+    (provider_id)    |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+  services           | categories         | M:1     | CASCADE   | Service categorization
+    (category_id)    |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+  bookings           | users              | M:1     | CASCADE   | Customer who booked
+    (customer_id)    |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+  bookings           | provider_profiles  | M:1     | CASCADE   | Provider being booked
+    (provider_id)    |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+  bookings           | services           | M:1     | CASCADE   | Service being booked
+    (service_id)     |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+  reviews            | bookings           | 1:1     | CASCADE   | Which booking reviewed
+    (booking_id)     |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+  reviews            | users              | M:1     | CASCADE   | Review author
+    (customer_id)    |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+  reviews            | provider_profiles  | M:1     | CASCADE   | Reviewed provider
+    (provider_id)    |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+  messages           | users              | M:1     | CASCADE   | Message sender
+    (sender_id)      |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+  messages           | users              | M:1     | CASCADE   | Message receiver
+    (receiver_id)    |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+  messages           | bookings           | M:1     | SET NULL  | Booking context
+    (booking_id)     |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+  notifications      | users              | M:1     | CASCADE   | Notification recipient
+    (user_id)        |   (id)             |         |           |
+  -------------------|--------------------|---------|-----------|---------------------------
+
+================================================================================
+5. INDEXES & CONSTRAINTS
+================================================================================
+
+  PRIMARY KEYS (all tables):
+    - users.id, categories.id, provider_profiles.id, services.id
+    - bookings.id, reviews.id, messages.id, notifications.id
+    (All auto-incrementing integers)
+
+  UNIQUE CONSTRAINTS:
+    - users.email
+    - categories.slug
+    - reviews.booking_id
+
+  SINGLE-COLUMN INDEXES:
+    Table              | Indexed Column(s)
+    -------------------|--------------------
+    users              | email
+    users              | role
+    categories         | slug
+    categories         | parent_id
+    provider_profiles  | user_id
+    provider_profiles  | is_verified
+    provider_profiles  | is_approved
+    services           | provider_id
+    services           | category_id
+    services           | is_active
+    bookings           | customer_id
+    bookings           | provider_id
+    bookings           | status
+    reviews            | provider_id
+    messages           | booking_id
+    notifications      | user_id
+    notifications      | is_read
+
+  COMPOUND INDEXES:
+    Table              | Indexed Columns                     | Purpose
+    -------------------|-------------------------------------|--------------------------
+    bookings           | (provider_id, booking_date,         | Prevents double-booking
+                       |  time_slot)                         |
+    messages           | (sender_id, receiver_id)            | Fast chat lookups
+
+================================================================================
+6. SEED DATA SUMMARY
+================================================================================
+
+  The project includes 8 seed files that populate the database with realistic
+  sample data for development and testing.
+
+  Table              | Records | Details
+  -------------------|---------|-----------------------------------------------
+  users              |   9     | 1 admin, 6 providers (roles that can offer
+                     |         | services), 2 customers. All passwords are
+                     |         | bcrypt-hashed 'password123'.
+   categories         |   10    | Plumbing, Electrical, Cleaning, Painting,
+                      |         | Carpentry, Appliance Repair, Cab Driver,
+                      |         | Refresher Courses, Tuition, Beauty Parlour.
+                      |         | All top-level (no subcategories in seed).
+  provider_profiles  |   6     | One profile per provider with business names,
+                     |         | descriptions, ratings (4.2-4.7), total_reviews
+                     |         | (8-28), and service areas.
+  services           |  15     | 2-3 services per provider, spanning all 6
+                     |         | categories. Prices range from Rs. 199 to
+                     |         | Rs. 12,999. Durations range from 30 min to
+                     |         | 12 hours (720 min).
+  bookings           |  13     | 7 completed, 2 confirmed, 3 pending,
+                     |         | 1 cancelled. Bookings are spread across both
+                     |         | customers and multiple providers with dates
+                     |         | in June-July 2026.
+  reviews            |   7     | Ratings of 3, 4, or 5 across 5 different
+                     |         | providers. Comments include customer feedback.
+  messages           |  10     | Conversations associated with 3 different
+                     |         | bookings between customers and providers.
+  notifications      |  10     | Booking and review notifications for various
+                     |         | users (customers, providers, admin).
+
+================================================================================
+7. DATA INTEGRITY & BUSINESS RULES
+================================================================================
+
+  RULE 1: Role-Based Access
+    - users.role must be one of: 'customer', 'provider', 'admin'
+    - Only users with role='provider' should have a row in provider_profiles.
+    - This is enforced at the application layer (not a DB constraint).
+
+  RULE 2: Provider Verification & Approval
+    - New providers must be explicitly verified (is_verified) and approved
+      (is_approved) by an admin before their services become visible.
+    - Both flags default to FALSE on registration.
+
+  RULE 3: Double-Booking Prevention
+    - The compound index on bookings(provider_id, booking_date, time_slot)
+      prevents any provider from having two bookings at the same date/time.
+    - Attempting to insert a conflicting booking row throws a UNIQUE
+      constraint violation at the database level.
+
+  RULE 4: One Review Per Booking
+    - The UNIQUE constraint on reviews.booking_id ensures a customer can
+      review a specific booking only once.
+    - Reviews should only be allowed for bookings with status='completed'
+      (enforced at the application layer).
+
+  RULE 5: Booking Status Lifecycle
+    - Typical flow: pending -> confirmed -> completed
+    - Cancellation can occur from pending or confirmed: pending -> cancelled
+    - Once completed, a booking cannot be modified or cancelled.
+
+  RULE 6: Denormalized Rating Cache
+    - provider_profiles.rating and total_reviews are denormalized caches.
+    - When a review is inserted/updated/deleted, these values should be
+      recalculated from the reviews table (via SQL triggers or app logic).
+    - This avoids expensive aggregate queries on every provider listing page.
+
+  RULE 7: Price Snapshot at Booking
+    - bookings.total_amount stores the price at booking time (copied from
+      services.price) so that future price changes don't affect completed
+      or pending bookings.
+
+  RULE 8: Cascading Deletes
+    - Deleting a user cascades to: provider_profiles, bookings (as customer),
+      reviews, messages (as sender/receiver), notifications.
+    - Deleting a provider profile cascades to: services, bookings, reviews, and
+      messages (booking_id set to NULL).
+    - This ensures no orphaned records.
+
+  RULE 9: Subcategory Integrity
+    - categories.parent_id with ON DELETE SET NULL means deleting a parent
+      category promotes its subcategories to top-level rather than deleting
+      them, preserving service-to-category associations.
+
+  RULE 10: Message Read Tracking
+    - messages.read_at = NULL indicates an unread message.
+    - When the recipient opens the conversation, read_at is updated to the
+      current timestamp for all messages from the sender.
+
+================================================================================
+8. SQLITE CONFIGURATION
+================================================================================
+
+  Pragmas set on every database connection:
+
+    PRAGMA journal_mode = WAL;
+      -- Write-Ahead Logging: allows concurrent reads during writes,
+      -- significantly improving performance for read-heavy workloads.
+
+    PRAGMA foreign_keys = ON;
+      -- Enables foreign key constraint enforcement. Off by default in
+      -- SQLite; must be enabled on every connection.
+
+    PRAGMA busy_timeout = 5000;
+      -- If a write operation encounters a locked table, it waits up to
+      -- 5000ms before throwing a busy error.
+
+  Knex Configuration (server/knexfile.js):
+    - client: 'better-sqlite3'
+    - useNullAsDefault: true (required by SQLite for nullable columns)
+    - Migrations directory: ./migrations
+    - Seeds directory: ./seeds
+    - Database path: configurable via DATABASE_PATH env variable
+      (default: ./data/serviconnect.db)
+
+================================================================================
+                        END OF DOCUMENT
+================================================================================

@@ -34,4 +34,15 @@ export const auth = {
   updateProfile: (data) => api.put('/auth/profile', data),
 };
 
+export const categories = {
+  getAll: () => api.get('/categories'),
+  getById: (id) => api.get(`/categories/${id}`),
+  getBySlug: (slug) => api.get(`/categories/slug/${slug}`),
+};
+
+export const recommendations = {
+  get: () => api.get('/recommendations'),
+  train: () => api.post('/recommendations/train'),
+};
+
 export default api;

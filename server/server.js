@@ -27,6 +27,8 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', require('./src/routes/auth.routes'));
+app.use('/api/categories', require('./src/routes/category.routes'));
+app.use('/api/recommendations', require('./src/routes/recommendation.routes'));
 
 app.use(errorHandler);
 

@@ -11,6 +11,7 @@
     "make:migration": "knex migrate:make"
   },
   "dependencies": {
+    "@tensorflow/tfjs-node": "^4.22.0",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^11.7.0",
     "cors": "^2.8.5",

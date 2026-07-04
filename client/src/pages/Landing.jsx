@@ -8,9 +8,11 @@ const categories = [
   { name: 'Electrical', icon: '⚡' },
   { name: 'Plumbing', icon: '🔧' },
   { name: 'Painting', icon: '🎨' },
-  { name: 'Beauty & Salon', icon: '💇' },
+  { name: 'Beauty Parlour', icon: '💅' },
+  { name: 'Cab Driver', icon: '🚕' },
+  { name: 'Refresher Courses', icon: '🔄' },
+  { name: 'Tuition', icon: '📖' },
   { name: 'Pest Control', icon: '🐜' },
-  { name: 'Tutoring', icon: '📚' },
   { name: 'Moving & Packing', icon: '📦' },
   { name: 'Carpentry', icon: '🪚' },
 ];

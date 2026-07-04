@@ -1,4 +1,5 @@
 import { useAuth } from '../context/AuthContext';
+import RecommendedProviders from '../components/customer/RecommendedProviders';
 import styles from './Dashboard.module.css';
 
 export default function Dashboard() {
@@ -14,6 +15,7 @@ export default function Dashboard() {
             : 'View and manage your bookings.'}
         </p>
       </div>
+      {user.role === 'customer' && <RecommendedProviders />}
     </div>
   );
 }

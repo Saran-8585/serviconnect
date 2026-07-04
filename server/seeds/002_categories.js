@@ -52,5 +52,37 @@ exports.seed = async function (knex) {
       sort_order: 6,
       is_active: true,
     },
+    {
+      name: 'Cab Driver',
+      slug: 'cab-driver',
+      description: 'Taxi, cab, and transportation services',
+      icon: 'car',
+      sort_order: 7,
+      is_active: true,
+    },
+    {
+      name: 'Refresher Courses',
+      slug: 'refresher-courses',
+      description: 'Short-term skill refresher and training programs',
+      icon: 'refresh-cw',
+      sort_order: 8,
+      is_active: true,
+    },
+    {
+      name: 'Tuition',
+      slug: 'tuition',
+      description: 'Academic tutoring and home tuition services',
+      icon: 'book-open',
+      sort_order: 9,
+      is_active: true,
+    },
+    {
+      name: 'Beauty Parlour',
+      slug: 'beauty-parlour',
+      description: 'Salon, skincare, and beauty services',
+      icon: 'sparkles',
+      sort_order: 10,
+      is_active: true,
+    },
   ]);
 };
